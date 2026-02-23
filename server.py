@@ -33,20 +33,16 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f"Starting server on port {args.port} with log level {args.log_level}")
 
-    if args.log_file:
-        # If we are logging to a file, we want uvicorn logs there too.
-        # We'll configure uvicorn loggers to propagate to the root logger
-        # and remove their default handlers to avoid duplicate/console output.
-        for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
-            uv_logger = logging.getLogger(logger_name)
-            uv_logger.handlers = []
-            uv_logger.propagate = True
+    # We want uvicorn logs to follow our custom formatting.
+    # We'll configure uvicorn loggers to propagate to the root logger
+    # and remove their default handlers to avoid duplicate/default output.
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        uv_logger = logging.getLogger(logger_name)
+        uv_logger.handlers = []
+        uv_logger.propagate = True
 
-        # Pass log_config=None to prevent uvicorn from reconfiguring logging
-        uvicorn.run(app, host="0.0.0.0", port=args.port, log_config=None, log_level=args.log_level.lower())
-    else:
-        # Standard uvicorn run for console output
-        uvicorn.run(app, host="0.0.0.0", port=args.port, log_level=args.log_level.lower())
+    # Pass log_config=None to prevent uvicorn from reconfiguring logging
+    uvicorn.run(app, host="0.0.0.0", port=args.port, log_config=None, log_level=args.log_level.lower())
 
 if __name__ == "__main__":
     main()
